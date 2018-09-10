@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "670008909455",
+    "firebase_url": "https://fence-85dcd.firebaseio.com",
+    "project_id": "fence-85dcd",
+    "storage_bucket": "fence-85dcd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:670008909455:android:d6d728c116f56221",
+        "android_client_info": {
+          "package_name": "com.app.yonoc.fence"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "670008909455-hpijq8aupkfjh08ambumsdbaplinoagv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.yonoc.fence",
+            "certificate_hash": "2e48ed28b6493594f0abf1a243baade4da923b97"
+          }
+        },
+        {
+          "client_id": "670008909455-pofnqf6ocr72ssrcffgkb0a55djmttst.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC__RZWtrSxhoXQWCcDEHC24jZ2xmqSOqs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "670008909455-pofnqf6ocr72ssrcffgkb0a55djmttst.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
