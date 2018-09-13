@@ -9,6 +9,11 @@ import android.widget.Toast;
 
 import com.app.yonoc.fence.R;
 import com.app.yonoc.fence.View.MainActivity;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -22,6 +27,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private GoogleApiClient googleApiClient;
     private SignInButton signInButton;
     public static final int SIGN_IN_CODE = 777;
+    private LoginButton loginButton;
+    private CallbackManager callbackManager;
 
 
     @Override
@@ -29,6 +36,38 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        ejecutarLoginDeGoogle();
+        ejecutarLoginDeFacebook();
+
+    }
+
+    /**************************Metodos del Login de Facebook*********************************/
+
+    private void ejecutarLoginDeFacebook() {
+        callbackManager = CallbackManager.Factory.create();
+        loginButton = findViewById(R.id.facebookSigninButton);
+        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                goToMainScreen();
+            }
+
+            @Override
+            public void onCancel() {
+                Toast.makeText(LoginActivity.this, "Login cancelado", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+                Toast.makeText(LoginActivity.this, "Error en el login de FB", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+
+    /**************************Metodos del Login de Google*********************************/
+
+    private void ejecutarLoginDeGoogle() {
         GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();
@@ -51,18 +90,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == SIGN_IN_CODE){
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            handleSignInResult(result);
-        }
+        Toast.makeText(this, "Login de Google falló.", Toast.LENGTH_SHORT).show();
     }
 
     private void handleSignInResult(GoogleSignInResult result) {
@@ -74,6 +102,21 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         } else {
             Toast.makeText(this, "Login failed!!!", Toast.LENGTH_SHORT).show();
         }
+    }
+
+
+    /*******************************Metodos comunes a todos los login**************************/
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == SIGN_IN_CODE){
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            handleSignInResult(result);
+        }
+
+        callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     private void goToMainScreen() {

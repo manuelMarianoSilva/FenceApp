@@ -10,6 +10,8 @@ import android.widget.Toast;
 import com.app.yonoc.fence.R;
 import com.app.yonoc.fence.View.Asalto.AsaltoActivity;
 import com.app.yonoc.fence.View.Login.LoginActivity;
+import com.facebook.AccessToken;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -22,7 +24,7 @@ import com.google.android.gms.common.api.Status;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
-    private GoogleApiClient googleApiClient;
+
 
 
     @Override
@@ -30,7 +32,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ejecutarSilentLoginDeGoogle();
 
+    }
+
+
+    /***************************Métodos del Silent Login de Google*********************************/
+    private GoogleApiClient googleApiClient;
+
+    private void ejecutarSilentLoginDeGoogle() {
         GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();
@@ -40,8 +50,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 .addApi(Auth.GOOGLE_SIGN_IN_API,googleSignInOptions)
                 .build();
 
+        if (AccessToken.getCurrentAccessToken() != null){
+            Toast.makeText(this, "Loggeado con Facebook", Toast.LENGTH_SHORT).show();
+        }
     }
-
 
     @Override
     protected void onStart() {
@@ -73,10 +85,43 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
     }
 
-    private void goToLoginActivity() {
-        Intent intent = new Intent(this, LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+
+    /*********************************Botones de la pantalla principal*****************************/
+
+    public void logout(View view) {
+
+        if (AccessToken.getCurrentAccessToken() == null){
+
+            Auth.GoogleSignInApi.signOut(googleApiClient).setResultCallback(new ResultCallback<Status>() {
+                @Override
+                public void onResult(@NonNull Status status) {
+                    if (status.isSuccess()){
+                        //goToLoginActivity();
+                        Toast.makeText(MainActivity.this, "Desloggeado papá!!!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(MainActivity.this, "No se pudo salir de la cuenta", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        } else {
+
+            LoginManager.getInstance().logOut();
+
+            if (AccessToken.getCurrentAccessToken() == null){
+                Toast.makeText(this, "Desloggeado de Facebook", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "No se pudo cerrar sesión de facebook", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+
+
+
     }
 
     public void irAsalto(View view) {
@@ -88,23 +133,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         startActivity(new Intent(this, LoginActivity.class));
     }
 
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+    /**********************************Utils*******************************************************/
 
-    }
-
-    public void logout(View view) {
-
-        Auth.GoogleSignInApi.signOut(googleApiClient).setResultCallback(new ResultCallback<Status>() {
-            @Override
-            public void onResult(@NonNull Status status) {
-                if (status.isSuccess()){
-                    //goToLoginActivity();
-                    Toast.makeText(MainActivity.this, "Desloggeado papá!!!", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(MainActivity.this, "No se pudo salir de la cuenta", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+    private void goToLoginActivity() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 }
