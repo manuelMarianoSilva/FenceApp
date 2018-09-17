@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.yonoc.fence.R;
@@ -21,6 +22,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
@@ -34,6 +37,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
         ejecutarSilentLoginDeGoogle();
 
+        fillCell();
+
+    }
+
+    private void fillCell() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user != null){
+
+            TextView nombre = findViewById(R.id.nombreEnMainActivity);
+            TextView mail = findViewById(R.id.maileEnMainActivity);
+            TextView url = findViewById(R.id.urlEnMainActivity);
+
+            nombre.setText(user.getDisplayName());
+            mail.setText(user.getEmail());
+            url.setText(user.getPhotoUrl().toString());
+        }
     }
 
 
@@ -118,6 +138,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 Toast.makeText(this, "No se pudo cerrar sesión de facebook", Toast.LENGTH_SHORT).show();
             }
         }
+
+        FirebaseAuth.getInstance().signOut();
 
 
 

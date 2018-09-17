@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import com.app.yonoc.fence.R;
 import com.app.yonoc.fence.View.MainActivity;
+import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -21,6 +22,17 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FacebookAuthCredential;
+import com.google.firebase.auth.FacebookAuthProvider;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+import java.sql.Array;
+import java.util.ArrayList;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
@@ -29,6 +41,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     public static final int SIGN_IN_CODE = 777;
     private LoginButton loginButton;
     private CallbackManager callbackManager;
+    private FirebaseAuth.AuthStateListener fireBaseAuthStateListener;
+    private FirebaseAuth firebaseAuth;
+
 
 
     @Override
@@ -39,6 +54,31 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         ejecutarLoginDeGoogle();
         ejecutarLoginDeFacebook();
 
+        firebaseAuth = FirebaseAuth.getInstance();
+        fireBaseAuthStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null){
+                    Toast.makeText(LoginActivity.this, "Loggeado en Firebase papa!!!", Toast.LENGTH_SHORT).show();
+                    goToMainScreen();
+                }
+            }
+        };
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        firebaseAuth.addAuthStateListener(fireBaseAuthStateListener);
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        firebaseAuth.removeAuthStateListener(fireBaseAuthStateListener);
     }
 
     /**************************Metodos del Login de Facebook*********************************/
@@ -46,10 +86,11 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private void ejecutarLoginDeFacebook() {
         callbackManager = CallbackManager.Factory.create();
         loginButton = findViewById(R.id.facebookSigninButton);
+        loginButton.setReadPermissions("email");
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                goToMainScreen();
+                handleFacebookAccessToken(loginResult.getAccessToken());
             }
 
             @Override
@@ -60,6 +101,16 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             @Override
             public void onError(FacebookException error) {
                 Toast.makeText(LoginActivity.this, "Error en el login de FB", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void handleFacebookAccessToken(AccessToken accessToken) {
+        AuthCredential authCredential = FacebookAuthProvider.getCredential(accessToken.getToken());
+        firebaseAuth.signInWithCredential(authCredential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                Toast.makeText(getApplicationContext(), "Error en el login de facebook a firebase", Toast.LENGTH_SHORT).show();
             }
         });
     }
