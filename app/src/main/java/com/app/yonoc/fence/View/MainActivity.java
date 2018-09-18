@@ -27,6 +27,8 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
+    private FirebaseAuth firebaseAuth;
+    private FirebaseAuth.AuthStateListener authStateListener;
 
 
 
@@ -34,30 +36,40 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        checkFirebaseUserStatus();
         ejecutarSilentLoginDeGoogle();
-
         fillCell();
-
     }
 
-    private void fillCell() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        if (user != null){
+    /*****************************Chequea el estado de usuario de Firebase*************************/
 
-            TextView nombre = findViewById(R.id.nombreEnMainActivity);
-            TextView mail = findViewById(R.id.maileEnMainActivity);
-            TextView url = findViewById(R.id.urlEnMainActivity);
+    private void checkFirebaseUserStatus() {
+        firebaseAuth = FirebaseAuth.getInstance();
+        authStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
 
-            nombre.setText(user.getDisplayName());
-            mail.setText(user.getEmail());
-            url.setText(user.getPhotoUrl().toString());
+            }
+        };
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        firebaseAuth.addAuthStateListener(authStateListener);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (authStateListener != null){
+            firebaseAuth.removeAuthStateListener(authStateListener);
         }
     }
 
-
     /***************************Métodos del Silent Login de Google*********************************/
+
     private GoogleApiClient googleApiClient;
 
     private void ejecutarSilentLoginDeGoogle() {
@@ -75,35 +87,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        OptionalPendingResult<GoogleSignInResult> pendingResult = Auth.GoogleSignInApi.silentSignIn(googleApiClient);
-
-        if (pendingResult.isDone()){
-            GoogleSignInResult result = pendingResult.get();
-            handleSignInResult(result);
-
-        } else {
-            pendingResult.setResultCallback(new ResultCallback<GoogleSignInResult>() {
-                @Override
-                public void onResult(@NonNull GoogleSignInResult googleSignInResult) {
-                    handleSignInResult(googleSignInResult);
-                }
-            });
-        }
-    }
-
-    private void handleSignInResult(GoogleSignInResult result) {
-
-        if (result.isSuccess()){
-            GoogleSignInAccount account = result.getSignInAccount();
-            Toast.makeText(this, account.getDisplayName(), Toast.LENGTH_SHORT).show();
-        } else {
-            //goToLoginActivity();
-        }
-    }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
@@ -141,9 +124,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
         FirebaseAuth.getInstance().signOut();
 
-
-
-
     }
 
     public void irAsalto(View view) {
@@ -161,5 +141,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         Intent intent = new Intent(this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+    }
+
+
+    private void fillCell() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user != null){
+
+            TextView nombre = findViewById(R.id.nombreEnMainActivity);
+            TextView mail = findViewById(R.id.maileEnMainActivity);
+            TextView url = findViewById(R.id.urlEnMainActivity);
+
+            nombre.setText(user.getDisplayName());
+            mail.setText(user.getEmail());
+            url.setText(user.getPhotoUrl().toString());
+        }
     }
 }
