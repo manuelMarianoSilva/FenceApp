@@ -17,6 +17,11 @@
     </LinearLayout>-->
 
     <com.facebook.login.widget.LoginButton
+        android:elevation="100dp"
+        android:shadowDy="@integer/google_play_services_version"
+        android:shadowDx="@integer/google_play_services_version"
+        android:shadowRadius="@integer/google_play_services_version"
+        android:shadowColor="#000"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
         android:layout_margin="1dp"
