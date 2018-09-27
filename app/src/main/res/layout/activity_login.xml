@@ -64,11 +64,12 @@
             android:layout_height="wrap_content"
             android:text="¿No tenés una cuenta?" />
 
-        <TextView
+        <Button
             android:id="@+id/botonCreaUnaCuenta"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=" CREA UNA"
+            android:background="#00ffffff"
             android:textColor="@color/colorAccent"
             android:textSize="16dp" />
 
