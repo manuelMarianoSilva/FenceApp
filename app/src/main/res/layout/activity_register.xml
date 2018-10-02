@@ -14,37 +14,57 @@
         android:padding="16dp">
 
 
-
-        <EditText
-            android:id="@+id/mailUsuario"
+        <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Mail"
-            android:inputType="textEmailAddress"
-            android:maxLines="1"
-            android:textColor="@android:color/white"/>
+            android:layout_height="wrap_content">
 
-        <EditText
-            android:id="@+id/contraseñaUsuario"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Contraseña"
-            android:focusableInTouchMode="true"
-            android:imeOptions="actionUnspecified"
-            android:inputType="textPassword"
-            android:maxLines="1"
-            android:textColor="@android:color/white"/>
+            <EditText
+                android:drawableLeft="@drawable/ic_action_name"
+                android:id="@+id/mailUsuario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint=" Mail"
+                android:inputType="textEmailAddress"
+                android:maxLines="1" />
 
-        <EditText
-            android:id="@+id/reingresarContraseñaUsuario"
+        </android.support.design.widget.TextInputLayout>
+
+
+        <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Reingresar Contraseña"
-            android:focusableInTouchMode="true"
-            android:imeOptions="actionUnspecified"
-            android:inputType="textPassword"
-            android:maxLines="1"
-            android:textColor="@android:color/white"/>
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:drawableLeft="@drawable/ic_lock"
+                android:id="@+id/contraseñaUsuario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint=" Contraseña"
+                android:focusableInTouchMode="true"
+                android:imeOptions="actionUnspecified"
+                android:inputType="textPassword"
+                android:maxLines="1" />
+
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:drawableLeft="@drawable/ic_lock"
+                android:id="@+id/reingresarContraseñaUsuario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint=" Reingresar Contraseña"
+                android:focusableInTouchMode="true"
+                android:imeOptions="actionUnspecified"
+                android:inputType="textPassword"
+                android:maxLines="1" />
+
+        </android.support.design.widget.TextInputLayout>
+
 
         <Button
             android:id="@+id/buttonRegistrar"

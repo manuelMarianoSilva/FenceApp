@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.app.yonoc.fence.R;
@@ -50,6 +51,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
         ejecutarLoginDeGoogle();
         ejecutarLoginDeFacebook();
+        crearBotonSignup();
 
         firebaseAuth = FirebaseAuth.getInstance();
         fireBaseAuthStateListener = new FirebaseAuth.AuthStateListener() {
@@ -62,6 +64,17 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 }
             }
         };
+    }
+
+    private void crearBotonSignup() {
+        Button signUpButton = findViewById(R.id.botonCreaUnaCuenta);
+
+        signUpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(view.getContext(), RegisterActivity.class));
+            }
+        });
     }
 
 

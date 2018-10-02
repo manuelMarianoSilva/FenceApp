@@ -1,10 +1,12 @@
 package com.app.yonoc.fence.View;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.webkit.URLUtil;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -153,9 +155,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             TextView mail = findViewById(R.id.maileEnMainActivity);
             TextView url = findViewById(R.id.urlEnMainActivity);
 
+            Uri uriUrl = user.getPhotoUrl();
+
+            if (uriUrl != null){
+                url.setText(uriUrl.toString());
+            }
+
             nombre.setText(user.getDisplayName());
             mail.setText(user.getEmail());
-            url.setText(user.getPhotoUrl().toString());
+
+
         }
     }
 }
