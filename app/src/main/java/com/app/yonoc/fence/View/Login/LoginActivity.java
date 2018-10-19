@@ -1,11 +1,18 @@
 package com.app.yonoc.fence.View.Login;
 
+import  android.support.v4.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Patterns;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.yonoc.fence.R;
@@ -32,16 +39,15 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
+public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, PasswordRecoveryFragment.RecoveryFragmentManipulator {
 
     private GoogleApiClient googleApiClient;
-    private SignInButton signInButton;
     public static final int SIGN_IN_CODE = 777;
-    private LoginButton loginButton;
     private CallbackManager callbackManager;
     private FirebaseAuth.AuthStateListener fireBaseAuthStateListener;
     private FirebaseAuth firebaseAuth;
-
+    private EditText email, password;
+    private FragmentManager fragmentManager;
 
 
     @Override
@@ -52,6 +58,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         ejecutarLoginDeGoogle();
         ejecutarLoginDeFacebook();
         crearBotonSignup();
+        crearBotonIngresoConEmail();
+        crearBotonOlvidoDePassword();
+
 
         firebaseAuth = FirebaseAuth.getInstance();
         fireBaseAuthStateListener = new FirebaseAuth.AuthStateListener() {
@@ -65,18 +74,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             }
         };
     }
-
-    private void crearBotonSignup() {
-        Button signUpButton = findViewById(R.id.botonCreaUnaCuenta);
-
-        signUpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(view.getContext(), RegisterActivity.class));
-            }
-        });
-    }
-
 
     @Override
     protected void onStart() {
@@ -95,7 +92,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     private void ejecutarLoginDeFacebook() {
         callbackManager = CallbackManager.Factory.create();
-        loginButton = findViewById(R.id.facebookSigninButton);
+        LoginButton loginButton = findViewById(R.id.facebookSigninButton);
         loginButton.setReadPermissions("email");
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
@@ -140,7 +137,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 .build();
 
 
-        signInButton = findViewById(R.id.googleSignInButton);
+        SignInButton signInButton = findViewById(R.id.googleSignInButton);
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -177,7 +174,93 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     }
 
 
-    /*******************************Metodos comunes a todos los login**************************/
+    /*******************************Métodos para el ingreso con email******************************/
+
+
+    private void crearBotonSignup() {
+        Button signUpButton = findViewById(R.id.botonCreaUnaCuenta);
+
+        signUpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(view.getContext(), RegisterActivity.class));
+            }
+        });
+    }
+
+    private void crearBotonIngresoConEmail() {
+        Button botonIngresarConEmail = findViewById(R.id.botonIngresarConEmail);
+
+        botonIngresarConEmail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                hideKeyboard();
+                ingresarConEmail();
+            }
+        });
+    }
+
+    private void ingresarConEmail() {
+        email = findViewById(R.id.campoEmailLogin);
+        password = findViewById(R.id.campoPasswordEmailLogin);
+        final TextInputLayout til = findViewById(R.id.textInputLayoutEmail);
+        final TextInputLayout tilPass = findViewById(R.id.tilPass);
+        String strEmail = email.getText().toString();
+        String strPassword = password.getText().toString();
+
+        if (strEmail.isEmpty() || !isEmailValid(strEmail)){
+            til.setError("Debe ser una dirección válida de Email");
+            til.setErrorEnabled(true);
+            return;
+        } else {
+            til.setErrorEnabled(false);
+        }
+
+        if (strPassword.isEmpty()){
+            Toast.makeText(this, "Fracaso Loggeando", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        firebaseAuth.signInWithEmailAndPassword(strEmail, strPassword)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()){
+                            Toast.makeText(LoginActivity.this, "Éxito", Toast.LENGTH_SHORT).show();
+                            tilPass.setErrorEnabled(false);
+                        } else {
+                            tilPass.setError("      Fallo en el login");
+                            email.setText("");
+                            password.setText("");
+                        }
+                    }
+                });
+    }
+
+    private void crearBotonOlvidoDePassword() {
+        TextView olvidoDePassword = findViewById(R.id.olvideMiPassword);
+
+        olvidoDePassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                enviarMailRecuperoDePassword();
+            }
+        });
+    }
+
+    private void enviarMailRecuperoDePassword() {
+        fragmentManager = getSupportFragmentManager();
+        PasswordRecoveryFragment passwordRecoveryFragment = new PasswordRecoveryFragment();
+        passwordRecoveryFragment.setRecoveryFragmentManipulator(this);
+        fragmentManager.beginTransaction().replace(R.id.contenedorDeFragmentOlvidoDePassword, passwordRecoveryFragment).addToBackStack("tag").commitAllowingStateLoss();
+    }
+
+    private boolean isEmailValid (CharSequence email){
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+
+    /*******************************Metodos comunes a todos los login******************************/
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -195,5 +278,32 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+    }
+
+
+    private void hideKeyboard() {
+        View view = getCurrentFocus();
+        if (view != null) {
+            ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).
+                    hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+    }
+
+    @Override
+    public void interfaceHideKeyboard() {
+        hideKeyboard();
+    }
+
+    @Override
+    public void interfacePopBackStack() {
+        fragmentManager.popBackStack();
+    }
+
+    @Override
+    public void displayEmailSentNotification() {
+        RecoveryEmailSuccessNotification notification = new RecoveryEmailSuccessNotification();
+        notification.setRecoveryFragmentManipulator(this);
+        fragmentManager.popBackStack();
+        fragmentManager.beginTransaction().replace(R.id.contenedorDeFragmentOlvidoDePassword, notification).addToBackStack("tag").commitAllowingStateLoss();
     }
 }
